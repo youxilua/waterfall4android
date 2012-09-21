@@ -1,18 +1,16 @@
 package com.youxilua.waterfall.item;
 
-import com.youxilua.waterfall.Constants;
-import com.youxilua.waterfall.WaterFallView;
-
 import android.os.Handler;
 import android.os.Message;
 
+import com.youxilua.waterfall.Constants;
+import com.youxilua.waterfall.WaterFallView;
+
 public class FlowViewHandler extends Handler {
 	private WaterFallView fallView;
-
-	public FlowViewHandler(WaterFallView sv) {
+	public FlowViewHandler(WaterFallView sv){
 		this.fallView = sv;
 	}
-
 	private int GetMinValue(int[] array) {
 		int m = 0;
 		int length = array.length;
@@ -24,14 +22,17 @@ public class FlowViewHandler extends Handler {
 		}
 		return m;
 	}
-
+	
 	@Override
 	public void handleMessage(Message msg) {
+
 		// super.handleMessage(msg);
+
 		switch (msg.what) {
 		case Constants.HANDLER_WHAT:
+			
 			FlowView v = (FlowView) msg.obj;
-			WaterFallView.Debug("width->" + msg.arg1);
+			WaterFallView.Debug("width->"+msg.arg1);
 			int h = msg.arg2;
 			// Log.d("MainActivity",
 			// String.format(
@@ -54,7 +55,7 @@ public class FlowViewHandler extends Handler {
 
 			fallView.lineIndex[columnIndex]++;
 
-			fallView.pin_mark.put(fallView.lineIndex[columnIndex],
+			fallView.pin_mark[columnIndex].put(fallView.lineIndex[columnIndex],
 					fallView.column_height[columnIndex]);
 			fallView.bottomIndex[columnIndex] = fallView.lineIndex[columnIndex];
 			break;
@@ -67,3 +68,5 @@ public class FlowViewHandler extends Handler {
 		return super.sendMessageAtTime(msg, uptimeMillis);
 	}
 };
+
+

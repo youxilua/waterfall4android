@@ -35,7 +35,7 @@ public class WaterFallUtils {
 			for (int k = 0; k < fallView.columnCount; k++) {
 				LinearLayout localLinearLayout = fallView.waterfall_items
 						.get(k);
-				if (fallView.pin_mark.get(fallView.bottomIndex[k]) > t + 3
+				if (fallView.pin_mark[k].get(fallView.bottomIndex[k]) > t + 3
 						* scrollHeight) {
 					WaterFallView.Debug("recycle,k:" + fallView.bottomIndex[k]);
 					((FlowView) localLinearLayout
@@ -44,7 +44,7 @@ public class WaterFallUtils {
 					fallView.bottomIndex[k]--;
 				}
 
-				if (fallView.pin_mark.get(Math.max(fallView.topIndex[k] - 1,
+				if (fallView.pin_mark[k].get(Math.max(fallView.topIndex[k] - 1,
 						0)) >= t - 2 * scrollHeight) {
 					((FlowView) localLinearLayout.getChildAt(Math.max(-1
 							+ fallView.topIndex[k], 0))).Reload();
@@ -62,7 +62,7 @@ public class WaterFallUtils {
 				LinearLayout localLinearLayout = fallView.waterfall_items
 						.get(k);
 
-				if (fallView.pin_mark.get(Math.min(
+				if (fallView.pin_mark[k].get(Math.min(
 						fallView.bottomIndex[k] + 1, fallView.lineIndex[k])) <= t
 						+ 3 * scrollHeight) {// 最底部的图片位置小于当前t+3*屏幕高度
 					
@@ -78,8 +78,8 @@ public class WaterFallUtils {
 				WaterFallView.Debug("headIndex:" + fallView.topIndex[k]
 						+ "  footIndex:" + fallView.bottomIndex[k]
 						+ "  headHeight:"
-						+ fallView.pin_mark.get(fallView.topIndex[k]));
-				if (fallView.pin_mark.get(fallView.topIndex[k]) < t - 2
+						+ fallView.pin_mark[k].get(fallView.topIndex[k]));
+				if (fallView.pin_mark[k].get(fallView.topIndex[k]) < t - 2
 						* scrollHeight) {// 未回收图片的最高位置<t-两倍屏幕高度
 					WaterFallView.Debug("recycle,k:" + k + " headindex:"
 							+ fallView.topIndex[k]);

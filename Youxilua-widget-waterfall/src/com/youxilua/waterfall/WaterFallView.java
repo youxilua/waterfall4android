@@ -44,7 +44,7 @@ public class WaterFallView extends ScrollView {
 //	public HashMap<Integer, Integer>[] pin_mark;
 	
 //	public SparseArray<Integer> []  pin_mark;
-	public SparseIntArray pin_mark;
+	public SparseIntArray[] pin_mark;
 	
 	
 //	public HashMap<Integer, FlowView> iviews;
@@ -84,7 +84,7 @@ public class WaterFallView extends ScrollView {
 		column_height = new int[columnCount];
 		iviews = new SparseArray<FlowView>();
 		pins = new SparseArray<String>();
-		pin_mark = new SparseIntArray(columnCount);
+		pin_mark = new SparseIntArray[columnCount];
 		this.lineIndex = new int[columnCount];
 		this.bottomIndex = new int[columnCount];
 		this.topIndex = new int[columnCount];
@@ -103,6 +103,7 @@ public class WaterFallView extends ScrollView {
 			waterfall_items.add(itemLayout);
 			//用于加载单列的显示
 			waterfallContainer.addView(itemLayout);
+			pin_mark[i] = new SparseIntArray();
 		}
 	}
 	/**
@@ -167,6 +168,28 @@ public class WaterFallView extends ScrollView {
 	public void setOnScrollListener(OnScrollListener onScrollListener) {
 		this.onScrollListener = onScrollListener;
 	}
+	
+	 public void deleteItems(FlowView v) {
+         int rowIndex = v.getRowIndex();
+         int columnIndex = v.getColumnIndex();
+
+         int height = v.getHeight();
+         waterfall_items.get(columnIndex).removeView(v);
+         this.pin_mark[columnIndex].removeAt(rowIndex);
+         for (int i = rowIndex; i < pin_mark[columnIndex].size(); i++) {
+                 this.pin_mark[columnIndex].put(i,
+                                 this.pin_mark[columnIndex].get(i + 1) - height);
+                 this.pin_mark[columnIndex].removeAt(i + 1);
+                 ((FlowView) this.waterfall_items.get(columnIndex).getChildAt(i))
+                                 .setRowIndex(i);
+         }
+
+         lineIndex[columnIndex]--;
+         column_height[columnIndex] -= height;
+         if (this.bottomIndex[columnIndex] > this.lineIndex[columnIndex]) {
+                 bottomIndex[columnIndex]--;
+         }
+ }
 	
 	public static void Debug(String message){
 		if(BuildConfig.DEBUG){
