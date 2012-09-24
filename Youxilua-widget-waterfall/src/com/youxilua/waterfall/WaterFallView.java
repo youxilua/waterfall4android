@@ -17,9 +17,9 @@ import android.widget.ScrollView;
 import com.youxilua.waterfall.item.FlowView;
 
 public class WaterFallView extends ScrollView {
-	
+
 	public static final String TAG = "LazyScrollView";
-	//图片显示相关的图片
+	// 图片显示相关的图片
 	public int columnCount = 3;
 	public int itemWidth;
 	public int pageCount = 10;
@@ -29,8 +29,9 @@ public class WaterFallView extends ScrollView {
 	public WaterFallUtils waterFallUtils;
 	public View view;
 	public ViewGroup waterfallContainer;
-	
+
 	public int current_page = 0;// 当前页数
+	public int pictureTotalCount = 1000;
 
 	public int[] topIndex;
 	public int[] bottomIndex;
@@ -41,16 +42,13 @@ public class WaterFallView extends ScrollView {
 
 	public int loaded_count = 0;// 已加载数量
 
-//	public HashMap<Integer, Integer>[] pin_mark;
-	
-//	public SparseArray<Integer> []  pin_mark;
+	// public HashMap<Integer, Integer>[] pin_mark;
+
+	// public SparseArray<Integer> [] pin_mark;
 	public SparseIntArray[] pin_mark;
-	
-	
-//	public HashMap<Integer, FlowView> iviews;
+
+	// public HashMap<Integer, FlowView> iviews;
 	public SparseArray<FlowView> iviews;
-	
-	
 
 	public WaterFallView(Context context) {
 		super(context);
@@ -66,19 +64,19 @@ public class WaterFallView extends ScrollView {
 		super(context, attrs, defStyle);
 
 	}
-	
+
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
 		onScrollListener.onAutoScroll(l, t, oldl, oldt);
 		waterFallUtils.autoReload(l, t, oldl, oldt);
-		
+
 	}
-	
-	public void setOptions(){
-		
+
+	public void setOptions() {
+
 	}
-	
+
 	private void init() {
 		this.setOnTouchListener(onTouchListener);
 		column_height = new int[columnCount];
@@ -92,36 +90,42 @@ public class WaterFallView extends ScrollView {
 			lineIndex[i] = -1;
 			bottomIndex[i] = -1;
 		}
-		//初始化话waterfall_items 用于加载图片
+		// 初始化话waterfall_items 用于加载图片
 		waterfall_items = new ArrayList<LinearLayout>();
-		for(int i = 0; i < columnCount; i++){
+		for (int i = 0; i < columnCount; i++) {
 			LinearLayout itemLayout = new LinearLayout(getContext());
-			LinearLayout.LayoutParams itemParam = new LinearLayout.LayoutParams(itemWidth, LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams itemParam = new LinearLayout.LayoutParams(
+					itemWidth, LayoutParams.WRAP_CONTENT);
 			itemLayout.setPadding(2, 2, 2, 2);
 			itemLayout.setOrientation(LinearLayout.VERTICAL);
 			itemLayout.setLayoutParams(itemParam);
 			waterfall_items.add(itemLayout);
-			//用于加载单列的显示
+			// 用于加载单列的显示
 			waterfallContainer.addView(itemLayout);
 			pin_mark[i] = new SparseIntArray();
 		}
 	}
+
 	/**
 	 * 获得参考的View，主要是为了获得它的MeasuredHeight，然后和滚动条的ScrollY+getHeight作比较。
 	 */
-	public void commitWaterFall(WaterFallOption options,WaterFallView currentFallView){
+	public void commitWaterFall(WaterFallOption options,
+			WaterFallView currentFallView) {
 		this.columnCount = options.column_count;
 		this.itemWidth = options.itemWidth;
 		this.waterfallContainer = options.waterFallContainer;
 		this.pageCount = options.pageCount;
+		// 一共加载的图片
+		this.pictureTotalCount = options.pictureTotalCount;
 		waterFallUtils = new WaterFallUtils(currentFallView);
 		this.view = getChildAt(0);
 		if (view != null) {
 			handler = new WaterFallHandler(view, this);
 			init();
 		}
-		
+
 	}
+
 	OnTouchListener onTouchListener = new OnTouchListener() {
 
 		@Override
@@ -129,16 +133,20 @@ public class WaterFallView extends ScrollView {
 
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				Log.d(TAG,"ACTION_DOWN"+"Y->"+ event.getY()+"X->"+event.getX());
+				Log.d(TAG,
+						"ACTION_DOWN" + "Y->" + event.getY() + "X->"
+								+ event.getX());
 				break;
 			case MotionEvent.ACTION_UP:
 				if (view != null && onScrollListener != null) {
-					handler.sendMessageDelayed(handler.obtainMessage(
-							Constants.HANDLER_WHAT), Constants.MESSAGE_DELAY);
+					handler.sendMessageDelayed(
+							handler.obtainMessage(Constants.HANDLER_WHAT),
+							Constants.MESSAGE_DELAY);
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
-				//Log.d(TAG,"ACTION_MOVE"+"Y->"+ event.getY()+"X->"+event.getX());
+				// Log.d(TAG,"ACTION_MOVE"+"Y->"+
+				// event.getY()+"X->"+event.getX());
 				break;
 			default:
 				break;
@@ -147,6 +155,7 @@ public class WaterFallView extends ScrollView {
 		}
 
 	};
+
 	/**
 	 * 定义接口
 	 * 
@@ -168,31 +177,37 @@ public class WaterFallView extends ScrollView {
 	public void setOnScrollListener(OnScrollListener onScrollListener) {
 		this.onScrollListener = onScrollListener;
 	}
-	
-	 public void deleteItems(FlowView v) {
-         int rowIndex = v.getRowIndex();
-         int columnIndex = v.getColumnIndex();
 
-         int height = v.getHeight();
-         waterfall_items.get(columnIndex).removeView(v);
-         this.pin_mark[columnIndex].removeAt(rowIndex);
-         for (int i = rowIndex; i < pin_mark[columnIndex].size(); i++) {
-                 this.pin_mark[columnIndex].put(i,
-                                 this.pin_mark[columnIndex].get(i + 1) - height);
-                 this.pin_mark[columnIndex].removeAt(i + 1);
-                 ((FlowView) this.waterfall_items.get(columnIndex).getChildAt(i))
-                                 .setRowIndex(i);
-         }
+	public void deleteItems(FlowView v) {
+		int rowIndex = v.getRowIndex();
+		int columnIndex = v.getColumnIndex();
 
-         lineIndex[columnIndex]--;
-         column_height[columnIndex] -= height;
-         if (this.bottomIndex[columnIndex] > this.lineIndex[columnIndex]) {
-                 bottomIndex[columnIndex]--;
-         }
- }
-	
-	public static void Debug(String message){
-		if(BuildConfig.DEBUG){
+		int height = v.getHeight();
+		waterfall_items.get(columnIndex).removeView(v);
+		this.pin_mark[columnIndex].removeAt(rowIndex);
+		for (int i = rowIndex; i < pin_mark[columnIndex].size(); i++) {
+			this.pin_mark[columnIndex].put(i,
+					this.pin_mark[columnIndex].get(i + 1) - height);
+			this.pin_mark[columnIndex].removeAt(i + 1);
+			((FlowView) this.waterfall_items.get(columnIndex).getChildAt(i))
+					.setRowIndex(i);
+		}
+
+		lineIndex[columnIndex]--;
+		column_height[columnIndex] -= height;
+		if (this.bottomIndex[columnIndex] > this.lineIndex[columnIndex]) {
+			bottomIndex[columnIndex]--;
+		}
+	}
+
+	@Override
+	public void fling(int velocityY) {
+		super.fling(velocityY / 4);
+		Debug("velocity-->" + velocityY);
+	}
+
+	public static void Debug(String message) {
+		if (BuildConfig.DEBUG) {
 			Log.d(TAG, message);
 		}
 	}

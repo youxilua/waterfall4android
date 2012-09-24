@@ -1,7 +1,6 @@
 package com.youxilua.waterfall.item;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.File;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +15,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.youxilua.common.fetch.CacheFetch;
 import com.youxilua.waterfall.BuildConfig;
 import com.youxilua.waterfall.Constants;
 import com.youxilua.waterfall.WaterFallView;
@@ -60,23 +60,21 @@ public class FlowView extends ImageView implements View.OnClickListener,
 	@Override
 	public boolean onLongClick(View v) {
 		Log.d("FlowView", "LongClick");
-		Toast.makeText(context, "长按：" + getId(),
-				Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, "长按：" + getId(), Toast.LENGTH_SHORT).show();
 		return true;
 	}
 
 	@Override
 	public void onClick(View v) {
 		Log.d("FlowView", "Click");
-		Toast.makeText(context, "单击：" + getId(),
-				Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, "单击：" + getId(), Toast.LENGTH_SHORT).show();
 	}
 
 	/**
 	 * 加载图片
 	 */
 	public void LoadImage() {
-			new LoadImageThread().start();
+		new LoadImageThread().start();
 	}
 
 	/**
@@ -144,25 +142,16 @@ public class FlowView extends ImageView implements View.OnClickListener,
 
 		@Override
 		public void run() {
-
-			BufferedInputStream buf;
-			try {
-				buf = new BufferedInputStream(context.getAssets()
-						.open(getFileName()));
-				bitmap = BitmapFactory.decodeStream(buf);
-
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
-
+			File cacheFile = CacheFetch.dowanLoadBitmap(getContext(),
+					getFileName());
+			bitmap = BitmapFactory.decodeFile(cacheFile.getPath());
 			((Activity) context).runOnUiThread(new Runnable() {
 				public void run() {
 					if (bitmap != null) {// 此处在线程过多时可能为null
 						setImageBitmap(bitmap);
-					}else{
-						if(BuildConfig.DEBUG){
-							Log.d(WaterFallView.TAG, "bitmap->"+null);
+					} else {
+						if (BuildConfig.DEBUG) {
+							Log.d(WaterFallView.TAG, "bitmap->" + null);
 						}
 					}
 				}
@@ -176,14 +165,19 @@ public class FlowView extends ImageView implements View.OnClickListener,
 
 		public void run() {
 
-			BufferedInputStream buf;
-			try {
-				buf = new BufferedInputStream(context.getAssets()
-						.open(getFileName()));
-				bitmap = BitmapFactory.decodeStream(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// BufferedInputStream buf;
+			// try {
+			// URL u = new URL(getFileName());
+			// WaterFallView.Debug("image->" + getFileName());
+			// buf = new BufferedInputStream(u.openConnection()
+			// .getInputStream());
+			// bitmap = BitmapFactory.decodeStream(buf);
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			File cacheFile = CacheFetch.dowanLoadBitmap(getContext(),
+					getFileName());
+			bitmap = BitmapFactory.decodeFile(cacheFile.getPath());
 			// if (bitmap != null) {
 
 			// 此处不能直接更新UI，否则会发生异常：
@@ -199,18 +193,16 @@ public class FlowView extends ImageView implements View.OnClickListener,
 
 						LayoutParams lp = getLayoutParams();
 
-						int layoutHeight = (height * getItemWidth())
-									/ width;// 调整高度
+						int layoutHeight = (height * getItemWidth()) / width;// 调整高度
 						if (lp == null) {
-							lp = new LayoutParams(getItemWidth(),
-									layoutHeight);
+							lp = new LayoutParams(getItemWidth(), layoutHeight);
 						}
 						setLayoutParams(lp);
 
 						setImageBitmap(bitmap);
 						Handler h = getViewHandler();
-						Message m = h.obtainMessage(Constants.HANDLER_WHAT, width,
-								layoutHeight, FlowView.this);
+						Message m = h.obtainMessage(Constants.HANDLER_WHAT,
+								width, layoutHeight, FlowView.this);
 						h.sendMessage(m);
 					}
 				}

@@ -17,6 +17,7 @@ import com.youxilua.waterfall.WaterFallView;
 import com.youxilua.waterfall.WaterFallView.OnScrollListener;
 import com.youxilua.waterfall.item.FlowView;
 import com.youxilua.waterfall.item.FlowViewHandler;
+import com.youxilua.waterfall.mock.ImageMock;
 
 public class WaterFallActivity extends Activity implements OnScrollListener {
 
@@ -28,7 +29,7 @@ public class WaterFallActivity extends Activity implements OnScrollListener {
 	private final String image_path = "images";
 	private Handler handler;
 	private int item_width;
-	private int column_count = 4;// 显示列数
+	private int column_count = 3;// 显示列数
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +62,7 @@ public class WaterFallActivity extends Activity implements OnScrollListener {
 		handler = new FlowViewHandler(waterfall_scroll);
 
 		// 加载所有图片路径
-		try {
-			image_filenames = Arrays.asList(asset_manager.list(image_path));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		
 		// 第一次加载
 		AddItemToContainer(waterfall_scroll.current_page,
 				waterfall_scroll.pageCount);
@@ -75,17 +71,15 @@ public class WaterFallActivity extends Activity implements OnScrollListener {
 	private void AddItemToContainer(int pageindex, int pagecount) {
 
 		int currentIndex = pageindex * pagecount;
-		int imagecount = 10000;// image_filenames.size();
-
+		int imagecount = waterfall_scroll.pictureTotalCount;// image_filenames.size();
+		
 		for (int i = currentIndex; i < pagecount * (pageindex + 1)
 				&& i < imagecount; i++) {
 			waterfall_scroll.loaded_count++;
 			Random rand = new Random();
-			int r = rand.nextInt(image_filenames.size());
-			AddImage(
-					image_filenames.get(r),
-					(int) Math.ceil(waterfall_scroll.loaded_count
-							/ (double) column_count),
+			int r = rand.nextInt(ImageMock.imageThumbUrls.length);
+			AddImage(ImageMock.imageThumbUrls[r],
+					(int) Math.ceil(waterfall_scroll.loaded_count / (double) column_count),
 					waterfall_scroll.loaded_count);
 		}
 
@@ -98,7 +92,7 @@ public class WaterFallActivity extends Activity implements OnScrollListener {
 		item.setRowIndex(rowIndex);
 		item.setId(id);
 		item.setViewHandler(handler);
-		item.setFileName(image_path + "/" + filename);
+		item.setFileName(filename);
 		item.setItemWidth(item_width);
 		item.LoadImage();
 
