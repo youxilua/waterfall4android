@@ -1,6 +1,10 @@
 waterfall4android
 =================
 
+**该项目不维护了,因为有个更好的瀑布流..**
+现在维护的是:
+[https://github.com/youxiachai/pinterest-like-adapter-view](https://github.com/youxiachai/pinterest-like-adapter-view)
+
 android瀑布流
 
 #android 瀑布流的实现详解,附源码#
